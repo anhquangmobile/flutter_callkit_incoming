@@ -81,6 +81,11 @@ class FlutterCallkitIncoming {
     return await _channel.invokeMethod("getDevicePushTokenVoIP");
   }
 
+  // callerName
+  static Future getCallerName() async {
+    return await _channel.invokeMethod("getCallerName");
+  }
+
   /// Start incoming call
   /// On iOS: start connection timer
   /// On Android: not implemented

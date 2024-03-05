@@ -6,6 +6,7 @@ import AVFoundation
 @available(iOS 10.0, *)
 public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProviderDelegate {
     
+    static let ACTION_CALLER_NAME = "com.hiennv.flutter_callkit_incoming.ACTION_CALLER_NAME"
     static let ACTION_DID_UPDATE_DEVICE_PUSH_TOKEN_VOIP = "com.hiennv.flutter_callkit_incoming.DID_UPDATE_DEVICE_PUSH_TOKEN_VOIP"
     
     static let ACTION_CALL_INCOMING = "com.hiennv.flutter_callkit_incoming.ACTION_CALL_INCOMING"
@@ -36,6 +37,9 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     private var data: Data?
     private var isFromPushKit: Bool = false
     private let devicePushTokenVoIP = "DevicePushTokenVoIP"
+
+    // callerName
+    private let callerNameVoIP = "CallerNameVoIP"
 
     private var answerAction: CXAnswerCallAction?
     
@@ -121,9 +125,22 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             self.answerAction?.fulfill()
             result("OK")
             break
+        // callerName
+        case "getCallerName":
+            result(self.getCallerName())
+            break
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+
+    // callerName
+    @objc public func setCallerName(_ callerName: String) {   
+        UserDefaults.standard.set(callerName, forKey: callerNameVoIP)
+        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALLER_NAME, ["callerNameVoIP":callerName])
+    }
+    @objc public func getCallerName() -> String {
+        return UserDefaults.standard.string(forKey: callerNameVoIP) ?? ""
     }
     
     @objc public func setDevicePushTokenVoIP(_ deviceToken: String) {
