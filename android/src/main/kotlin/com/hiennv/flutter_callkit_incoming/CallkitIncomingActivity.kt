@@ -38,6 +38,7 @@ import com.squareup.picasso.OkHttp3Downloader
 import android.view.ViewGroup.MarginLayoutParams
 import android.os.PowerManager
 import android.text.TextUtils
+import android.util.Log
 import com.hiennv.flutter_callkit_incoming.CallkitIncomingBroadcastReceiver.Companion.EXTRA_CALLKIT_TEXT_ACCEPT
 import com.hiennv.flutter_callkit_incoming.CallkitIncomingBroadcastReceiver.Companion.EXTRA_CALLKIT_TEXT_DECLINE
 
@@ -108,10 +109,18 @@ class CallkitIncomingActivity : Activity() {
         setContentView(R.layout.activity_callkit_incoming)
         initView()
         incomingData(intent)
-        registerReceiver(
-            endedCallkitIncomingBroadcastReceiver,
-            IntentFilter("${packageName}.${ACTION_ENDED_CALL_INCOMING}")
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(
+                endedCallkitIncomingBroadcastReceiver,
+                IntentFilter("${packageName}.${ACTION_ENDED_CALL_INCOMING}"),
+                Context.RECEIVER_EXPORTED,
+            )
+        } else {
+            registerReceiver(
+                endedCallkitIncomingBroadcastReceiver,
+                IntentFilter("${packageName}.${ACTION_ENDED_CALL_INCOMING}")
+            )
+        }
     }
 
     private fun wakeLockRequest(duration: Long) {
@@ -287,6 +296,11 @@ class CallkitIncomingActivity : Activity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
             keyguardManager.requestDismissKeyguard(this, null)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                setShowWhenLocked(true)
+            } else {
+                window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             finishAndRemoveTask()
