@@ -40,6 +40,8 @@ import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import okhttp3.OkHttpClient
+import android.app.Activity
+import android.provider.Settings
 
 
 class CallkitNotificationManager(private val context: Context) {
@@ -488,6 +490,16 @@ class CallkitNotificationManager(private val context: Context) {
         return NotificationManagerCompat.from(context)
     }
 
+    // Request permission to use full screen intent
+    fun requestFullIntentPermission(activity: Activity?) {
+        val canUseFullScreenIntent = getNotificationManager().canUseFullScreenIntent();
+        if (!canUseFullScreenIntent && Build.VERSION.SDK_INT > 33) {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                data = Uri.fromParts("package", activity?.packageName, null)
+            }
+            activity?.startActivity(intent)
+        }
+    }
 
     private fun getPicassoInstance(context: Context, headers: HashMap<String, Any?>): Picasso {
         val client = OkHttpClient.Builder()
